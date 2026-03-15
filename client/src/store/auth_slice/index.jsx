@@ -22,7 +22,7 @@ export const registerUser = createAsyncThunk(
         }
     }
 );
-export const loginUser = createAsyncThunk("auth/login", async (formdata) => {
+export const loginUser = createAsyncThunk("auth/login", async () => {
     const response = await axios.post("http://localhost:3000/api/auth/login", formdata, { withCredentials: true })
     return response.data
 })

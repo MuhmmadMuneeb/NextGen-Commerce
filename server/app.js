@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser"
 import mongoose from "mongoose"
 import authRouter from "./routes/auth/auth.js"
 import dotenv from "dotenv"
+import ProductRouter from "./routes/admin/products-auth.js"
 dotenv.config()
 const app = express()
 
@@ -26,6 +27,7 @@ mongoose.connect(process.env.MONGODB_URL).then(() => {
 })
 
 app.use("/api/auth",authRouter)
+app.use("/api/admin/product",ProductRouter)
 app.listen(PORt, () => {
     console.log(`server is running on http://localhost:${PORt}`)
 })
