@@ -10,6 +10,14 @@ export const register = async (req, res) => {
         if (!userName || !password || !email) {
             return res.status(400).json({ success: false, message: "All fields are required" })
         }
+        const existingUser = await User.findOne({ email });
+
+        if (existingUser) {
+            return res.status(400).json({
+                success: false,
+                message: "User already exists"
+            })
+        }
         const hashedPassword = await bcrypt.hash(password, 10)
         const user = await User.create({ userName, password: hashedPassword, email, role })
         res.status(201).json({
@@ -49,7 +57,6 @@ export const Login = async (req, res) => {
 
         return res.cookie("token", token, {
             httpOnly: true,
-            sameSite: "strict"
         }).status(200).json({
             success: true,
             message: "User logged in successfully",
@@ -63,10 +70,10 @@ export const Login = async (req, res) => {
     } catch (error) {
 
         console.error("Login Error:", error);
-        res.status(500).json({
+        return res.status(401).json({
             success: false,
-            message: error
-        });
+            message: "login failed"
+        })
     }
 };
 
@@ -82,17 +89,23 @@ export const Logout = async (req, res) => {
 };
 
 export const checkAuthMiddleware = (req, res, next) => {
-    const token = req.cookies.token
+    const token = req.cookies.token;
+
     if (!token) {
-        return res
-            .status(400)
-            .json({ success: false, message: "Unautherized " });
+        return res.status(401).json({
+            success: false,
+            message: "Unauthorized"
+        });
     }
+
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET)
-        req.user = decoded
-        next()
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded;
+        next();
     } catch (error) {
-        res.status(400).json({ success: false, message: "Unautherized " });
+        return res.status(401).json({
+            success: false,
+            message: "Unauthorized"
+        });
     }
 }

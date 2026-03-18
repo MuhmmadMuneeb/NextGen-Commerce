@@ -27,7 +27,7 @@ mongoose.connect(process.env.MONGODB_URL).then(() => {
 })
 
 app.use("/api/auth",authRouter)
-app.use("/api/admin/product",ProductRouter)
+app.use("/api/admin/products",ProductRouter)
 app.listen(PORt, () => {
     console.log(`server is running on http://localhost:${PORt}`)
 })

@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Plus, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import CommonForm from "../comman/Form";
+
 import { addProductFormElements } from "@/config";
 import {
   Sheet,
@@ -10,6 +10,17 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import ProductImageUpload from "@/components/admin-view/Image-upload";
+// import AdminProductTile from "@/components/admin-view/ProductTile";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  addNewProduct,
+  editProduct,
+  fetchAllProducts,
+} from "@/store/Admin-product-slice/Index";
+import { toast } from "sonner";
+import AdminProductTile from "@/components/admin-view/ProductTile";
+import CommonForm from "../comman/Form";
 
 const initialFormData = {
   image: null,
@@ -25,56 +36,124 @@ const initialFormData = {
 const AdminProducts = () => {
   const [openCreateProductsDialog, setOpenCreateProductsDialog] =
     useState(false);
-
+  const [currentEditedId, setCurrentEditedId] = useState(null);
   const [formData, setFormData] = useState(initialFormData);
+  const [imageFile, setImageFile] = useState(null);
+  const [uploadedImageUrl, setUploadedImageUrl] = useState(null);
+  const [imageLoadingState, setImageLoadingState] = useState(false);
+  const dispatch = useDispatch();
+  const { productList  } = useSelector((state) => state.adminProducts);
+
+  function resetProductForm() {
+    setCurrentEditedId(null);
+    setFormData(initialFormData);
+    setImageFile(null);
+    setUploadedImageUrl(null);
+    setOpenCreateProductsDialog(false);
+  }
 
   function onSubmit(event) {
     event.preventDefault();
-    console.log(formData);
+    // if (!uploadedImageUrl) {
+    //   alert("Please upload an image first!");
+    //   return;
+    // }
+
+    if (imageLoadingState) {
+      toast.error("Please wait for the image to finish uploading");
+      return;
+    }
+
+    const finalImageUrl = uploadedImageUrl || formData.image;
+
+    if (!finalImageUrl) {
+      toast.error("Please upload a product image");
+      return;
+    }
+
+    const payload = {
+      ...formData,
+      price: Number(formData.price),
+      salePrice: Number(formData.salePrice),
+      totalStock: Number(formData.totalStock),
+      image: finalImageUrl,
+    };
+
+    const action = currentEditedId
+      ? editProduct({ id: currentEditedId, formData: payload })
+      : addNewProduct(payload);
+
+    dispatch(action).then((data) => {
+      if (data?.payload?.success) {
+        resetProductForm();
+        dispatch(fetchAllProducts());
+        toast.success("Success");
+      } else {
+        toast.error(data?.payload || "Error");
+      }
+    });
   }
 
+  useEffect(() => {
+    dispatch(fetchAllProducts());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (uploadedImageUrl) {
+      setFormData((prev) => ({
+        ...prev,
+        image: uploadedImageUrl, // ✅ only set URL
+      }));
+    }
+  }, [uploadedImageUrl]);
+
+  useEffect(() => {
+    if (currentEditedId && formData?.image) {
+      setUploadedImageUrl(formData.image);
+      return;
+    }
+
+    if (!currentEditedId) {
+      setUploadedImageUrl(null);
+    }
+  }, [currentEditedId, formData]);
+
+
   return (
-    <div className="w-full p-6">
-
-      {/* HEADER */}
-
-      <div className="mb-6 flex items-center justify-between">
-
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-100">
-            Products
-          </h1>
-          <p className="text-sm text-slate-400">
-            Manage your store inventory
-          </p>
-        </div>
-
+    <div className="w-full">
+      <div className="mb-6 flex items-center justify-end">
         <Button
-          onClick={() => setOpenCreateProductsDialog(true)}
-          className="flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-600"
+          onClick={() => {
+            setCurrentEditedId(null);
+            setFormData(initialFormData);
+            setImageFile(null);
+            setUploadedImageUrl(null);
+            setOpenCreateProductsDialog(true);
+          }}
+          className="rounded-2xl border border-slate-700 bg-slate-100 px-5 py-2.5 text-slate-950 shadow-lg shadow-black/30 transition-all duration-300 hover:-translate-y-0.5 hover:bg-emerald-500 hover:text-white"
         >
-          <Plus className="h-4 w-4" />
-          Add Product
+          <Plus className="mr-2 h-4 w-4" />
+          Add New Product
         </Button>
-
       </div>
 
-      {/* PRODUCTS GRID (placeholder) */}
-
-      <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
-
-        <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
-          <h2 className="text-slate-100 font-medium">
-            Sample Product
-          </h2>
-          <p className="text-sm text-slate-400">
-            $120
-          </p>
-        </div>
-
+      <div className="grid items-stretch gap-4 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+        {productList ?.length > 0 ? (
+          productList .map((product) => (
+            <AdminProductTile
+              key={product._id}
+              product={product}
+              setFormData={setFormData}
+              setOpenCreateProductsDialog={setOpenCreateProductsDialog}
+              setCurrentEditedId={setCurrentEditedId}
+            />
+          ))
+        ) : (
+          <div className="col-span-full rounded-3xl border border-slate-800 bg-slate-950/70 p-8 text-center text-slate-400">
+            No products found yet.
+          </div>
+        )}
       </div>
-
-      {/* DRAWER */}
 
       <Sheet
         open={openCreateProductsDialog}
@@ -82,61 +161,65 @@ const AdminProducts = () => {
       >
         <SheetContent
           side="right"
-          className="w-full overflow-auto border-l border-slate-800 bg-slate-950 px-0 sm:max-w-md"
+          className="w-full overflow-auto border-l border-slate-800 bg-[linear-gradient(180deg,#020617_0%,#0f172a_42%,#111827_100%)] px-0 shadow-[0_20px_80px_rgba(2,6,23,0.6)] sm:max-w-md"
         >
-          <div className="min-h-full flex flex-col">
-
-            {/* HEADER */}
-
-            <SheetHeader className="border-b border-slate-800 px-6 py-5">
-
+          <div className="min-h-full">
+            <SheetHeader className="border-b border-slate-800 bg-slate-950/70 px-5 py-5 backdrop-blur-xl">
               <div className="flex items-start gap-4">
-
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400">
+                <div className="flex h-12 w-12 items-center justify-center rounded-3xl bg-gradient-to-br from-slate-950 via-slate-800 to-emerald-500 text-white shadow-lg shadow-emerald-900/40">
                   <Sparkles className="h-5 w-5" />
                 </div>
-
-                <div>
-                  <SheetTitle className="text-lg font-semibold text-slate-100">
-                    Add Product
+                <div className="space-y-1">
+                  <SheetTitle className="text-xl font-semibold tracking-tight text-slate-100">
+                    Add New Product
                   </SheetTitle>
-
-                  <SheetDescription className="text-sm text-slate-400">
-                    Add a new product to your store catalog
+                  <SheetDescription className="max-w-sm text-sm leading-6 text-slate-400">
+                    Build a polished catalog entry with clear details, pricing,
+                    and inventory information.
                   </SheetDescription>
                 </div>
-
               </div>
-
             </SheetHeader>
 
-            {/* FORM SECTION */}
-
-            <div className="flex-1 px-6 py-6">
-
-              <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+            <div className="px-5 py-5">
+              <div className="rounded-[24px] border border-slate-800/80 bg-slate-950/72 p-4 shadow-[0_20px_60px_rgba(2,6,23,0.45)] backdrop-blur-xl">
+                <div className="mb-5 rounded-[20px] bg-gradient-to-r from-slate-950 via-slate-800 to-emerald-600 p-4 text-white shadow-lg shadow-slate-300/40">
+                  <p className="text-xs font-semibold uppercase tracking-[0.28em] text-emerald-100/80">
+                    Product Editor
+                  </p>
+                  <h2 className="mt-2 text-lg font-semibold tracking-tight">
+                    Fill in the essentials
+                  </h2>
+                  <p className="mt-2 max-w-md text-sm leading-6 text-slate-200">
+                    Use concise titles, strong descriptions, and accurate stock
+                    data to keep your storefront clean and trustworthy.
+                  </p>
+                </div>
 
                 <CommonForm
                   formControls={addProductFormElements}
                   formData={formData}
                   setFormData={setFormData}
                   onSubmit={onSubmit}
-                  buttonText="Save Product"
-
+                  buttonText={currentEditedId ? "Update Product" : "Save Product"}
                   formClassName="space-y-4"
-                  fieldClassName="space-y-1"
-
-                  labelClassName="text-xs font-medium text-slate-300"
-
-                  inputClassName="h-10 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-white placeholder:text-slate-400 transition-all focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/30"
-
-                  buttonClassName="mt-3 h-10 w-full rounded-md bg-emerald-500 text-sm font-medium text-white hover:bg-emerald-600"
+                  fieldClassName="rounded-2xl border border-slate-800 bg-slate-900/70 p-3.5 shadow-sm"
+                  labelClassName="mb-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400"
+                  inputClassName="min-h-11 rounded-xl border-slate-700 bg-slate-950/95 px-4 text-slate-100 shadow-[0_8px_24px_rgba(2,6,23,0.2)] placeholder:text-slate-500 focus-visible:border-emerald-400 focus-visible:ring-emerald-500/20"
+                  buttonClassName="h-11 rounded-2xl border border-slate-700 bg-slate-100 text-sm font-semibold tracking-wide text-slate-950 shadow-lg shadow-black/30 transition-all duration-300 hover:-translate-y-0.5 hover:bg-emerald-500 hover:text-white"
                 />
-
               </div>
-
+              <ProductImageUpload
+                imageFile={imageFile}
+                setImageFile={setImageFile}
+                imageLoadingState={imageLoadingState}
+                uploadedImageUrl={uploadedImageUrl}
+                setUploadedImageUrl={setUploadedImageUrl}
+                setImageLoadingState={setImageLoadingState}
+                isEditMode={Boolean(currentEditedId)}
+                isCustomStyling
+              />
             </div>
-
           </div>
         </SheetContent>
       </Sheet>
