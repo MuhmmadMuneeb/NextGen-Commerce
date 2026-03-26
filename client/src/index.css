@@ -127,3 +127,28 @@
     @apply font-sans;
     }
 }
+
+
+@theme {
+  --radius-3xl: 2rem;
+  --radius-4xl: 3rem;
+  
+  /* Smooth organic animation curve */
+  --ease-organic: cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+.transition-all {
+  transition-timing-function: var(--ease-organic);
+}
+
+/* Optional: Custom scrollbar for that high-end feel */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}

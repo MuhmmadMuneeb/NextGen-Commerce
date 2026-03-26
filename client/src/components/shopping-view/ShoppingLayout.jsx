@@ -1,21 +1,22 @@
-import React from 'react'
-import Header from './Header'
-import Sidebar from './sidebar'
-import { Outlet } from 'react-router-dom'
+import React, { useState } from 'react';
+import Header from './Header';
+import Sidebar from './sidebar';
+import { Outlet } from 'react-router-dom';
 
 const ShoppingLayout = () => {
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
     return (
-        <div>
-            <div>
-                <Header />
-
-            </div>
-            <div className='flex '>
-                <Sidebar />
-                <Outlet />
-            </div>
+        <div className="flex flex-col min-h-screen bg-white dark:bg-zinc-950">
+            <Header open={isSidebarOpen} setOpen={setIsSidebarOpen} />
+            <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+            <main className="flex-1 pt-[72px] lg:pt-[80px]"> 
+                <div className="container mx-auto px-4 md:px-8 py-6">
+                    <Outlet />
+                </div>
+            </main>
         </div>
-    )
-}
+    );
+};
 
-export default ShoppingLayout
+export default ShoppingLayout;
