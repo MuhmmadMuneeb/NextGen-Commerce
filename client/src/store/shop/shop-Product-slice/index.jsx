@@ -2,13 +2,15 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 const initialState = {
     productList: [],
-    isLoading: false
+    isLoading: false,
+    productDetails: null
 }
 
 export const allProducts = createAsyncThunk(
     "products/fetchAllProducts",
-    async () => {
-        const result = await axios.get("http://localhost:3000/api/shop/products/get", {
+    async (filtersparams = {}, sortparams = "price-lowtohigh") => {
+        const querry = new URLSearchParams({ ...filtersparams, sort: sortparams }).toString()
+        const result = await axios.get(`http://localhost:3000/api/shop/products/get?${querry}`, {
             headers: {
                 "Content-Type": "application/json",
             },
@@ -17,6 +19,24 @@ export const allProducts = createAsyncThunk(
         return result.data;
     },
 );
+
+export const fetchProductDetails = createAsyncThunk(
+  "products/fetchProductDetails",
+  async (id) => {
+    const result = await axios.get(
+      `http://localhost:3000/api/shop/products/getDetails/${id}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+    );
+    console.log(result.data)
+
+    return result.data;
+  },
+);
+
 
 const productSlice = createSlice({
     name: "products",
@@ -34,6 +54,16 @@ const productSlice = createSlice({
             .addCase(allProducts.rejected, (state) => {
                 state.isLoading = false;
                 state.productList = [];
+            }).addCase(fetchProductDetails.pending, (state) => {
+                state.isLoading = true;
+            })
+            .addCase(fetchProductDetails.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.productDetails = action.payload.data;
+            })
+            .addCase(fetchProductDetails.rejected, (state, action) => {
+                state.isLoading = false;
+                state.productDetails = [];
             });
     },
 });

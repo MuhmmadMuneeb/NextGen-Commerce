@@ -2,7 +2,6 @@ import { filterOptions } from "@/config";
 import { Fragment } from "react";
 import { Label } from "../ui/label";
 import { Checkbox } from "../ui/checkbox";
-import { Separator } from "../ui/separator";
 
 function ProductFilter({ filters, handleFilter }) {
   return (
@@ -31,14 +30,13 @@ function ProductFilter({ filters, handleFilter }) {
 
               <div className="grid gap-3 mt-4">
                 {filterOptions[keyItem].map((option) => {
-                  const isActive = 
+                  const isActive =
                     filters &&
-                    Object.keys(filters).length > 0 &&
                     filters[keyItem] &&
                     filters[keyItem].indexOf(option.id) > -1;
 
                   return (
-                    <Label 
+                    <div
                       key={option.id}
                       className={`
                         flex items-center gap-3 p-3 cursor-pointer transition-all duration-200 border
@@ -47,28 +45,27 @@ function ProductFilter({ filters, handleFilter }) {
                           : "bg-white text-black/60 border-black/5 hover:border-black hover:text-black"}
                         rounded-none
                       `}
+                      // Use a div with onClick instead of Label for better event control
                       onClick={() => handleFilter(keyItem, option.id)}
                     >
-                      {/* Custom Tactical Checkbox */}
                       <div className="relative flex items-center justify-center">
                         <Checkbox
                           className={`
-                            h-4 w-4 rounded-none border-2 transition-all
+                            h-4 w-4 rounded-none border-2 transition-all pointer-events-none
                             ${isActive ? "border-white bg-white text-black" : "border-black/20 bg-transparent"}
                           `}
                           checked={isActive}
-                          onCheckedChange={() => handleFilter(keyItem, option.id)}
                         />
                       </div>
 
-                      <span className="text-[10px] font-black uppercase tracking-widest">
+                      <span className="text-[10px] font-black uppercase tracking-widest pointer-events-none">
                         {option.label}
                       </span>
                       
                       {isActive && (
                         <span className="ml-auto text-[8px] animate-pulse">● ACTIVE</span>
                       )}
-                    </Label>
+                    </div>
                   );
                 })}
               </div>

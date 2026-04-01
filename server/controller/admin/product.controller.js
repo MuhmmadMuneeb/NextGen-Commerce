@@ -12,7 +12,7 @@ export const imageHandleUpload = async (req, res) => {
             });
         }
 
-        // ✅ directly pass file
+      
         const result = await imageUploadUtil(req.file);
 
         res.status(200).json({

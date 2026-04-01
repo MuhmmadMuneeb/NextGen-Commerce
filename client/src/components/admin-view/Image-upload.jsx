@@ -63,6 +63,7 @@ function ProductImageUpload({
         error.response?.data?.message || "Image upload request failed",
       );
       setUploadedImageUrl(null);
+
     } finally {
       setImageLoadingState(false);
     }
