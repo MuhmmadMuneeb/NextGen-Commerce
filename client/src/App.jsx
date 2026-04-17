@@ -18,6 +18,8 @@ import AdminLayout from './components/admin-view/AdminLayout'
 import { useDispatch, useSelector } from 'react-redux'
 import { checkAuth } from './store/auth_slice'
 import ShoppingLayout from './components/shopping-view/ShoppingLayout'
+import Contact from './pages/shopping-view/Contact'
+import About from './pages/shopping-view/About'
 
 const App = () => {
   const { isAuthenticated, isLoading, user } = useSelector((state) => state.auth)
@@ -44,6 +46,8 @@ const App = () => {
           <Route path='listing' element={<ShoppingListing />} />
           <Route path='account' element={<ShoppingAccount />} />
           <Route path='checkout' element={<ShoppingCheckout />} />
+          <Route path='about' element={<About />} />
+          <Route path='contact' element={<Contact />} />
         </Route>
         <Route path='*' element={<Notfound />} />
         <Route path='/unauth-page' element={<Unauth />} />

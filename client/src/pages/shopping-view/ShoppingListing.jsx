@@ -93,7 +93,7 @@ const ShoppingListing = () => {
   }, [productDetails]);
 
   return (
-    <div className="min-h-screen bg-white text-black font-mono">
+    <div  className="min-h-screen bg-white text-black font-mono">
       {/* 01. UTILITY BAR */}
       <div className="border-b border-black/10 px-6 py-4 flex justify-between items-center sticky top-0 z-50 bg-white/80 backdrop-blur-md">
         <div className="flex items-center gap-3">

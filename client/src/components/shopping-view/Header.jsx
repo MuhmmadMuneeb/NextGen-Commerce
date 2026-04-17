@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSelector, useDispatch } from "react-redux";
-import { 
-  Search, X, ArrowRight, User, LogOut, Settings, Activity, ChevronDown 
+import {
+  Search, X, ArrowRight, User, LogOut, Settings, Activity, ChevronDown, ShoppingBag, Terminal
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -15,36 +15,31 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { logoutUser } from "@/store/auth_slice/index";
+import UserCartWrapper from "./UserCartWrapper";
 
 const Header = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  
-  // Get auth state
+  const [openCartSheet, setOpenCartSheet] = useState(false);
+
   const { user, isAuthenticated } = useSelector((state) => state.auth);
-  
+
+  const { cartItems } = useSelector((state) => state.shopCart || { cartItems: [] });
+
   const location = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Robust Initial Logic: Checks userName, then email, then defaults to "U"
-  const userInitial = user?.userName 
-    ? user.userName.charAt(0).toUpperCase() 
-    : user?.email 
-      ? user.email.charAt(0).toUpperCase() 
-      : "U";
-
-  const displayName = user?.userName || "Guest_Access";
+  // Robust Initial Logic
+  const nameSource = user?.userName || user?.name || user?.email || "Guest";
+  const userInitial = nameSource.charAt(0).toUpperCase();
+  const displayName = user?.userName || user?.name || "Guest_Access";
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 30);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  useEffect(() => {
-    document.body.style.overflow = isSidebarOpen ? "hidden" : "auto";
-  }, [isSidebarOpen]);
 
   const handleLogout = () => {
     dispatch(logoutUser());
@@ -53,13 +48,13 @@ const Header = () => {
 
   return (
     <>
-      <header 
+      <header
         className={`fixed top-0 inset-x-0 z-[60] px-6 py-4 flex items-center justify-between transition-all duration-500
           ${isScrolled ? "bg-white/90 backdrop-blur-xl border-b border-black/10 py-3" : "bg-transparent"}`}
       >
-        {/* LEFT: MENU TRIGGER */}
+        {/* LEFT: TACTICAL MENU TRIGGER */}
         <div className="flex items-center gap-6">
-          <button 
+          <button
             onClick={() => setIsSidebarOpen(true)}
             className="flex items-center gap-3 group"
           >
@@ -74,39 +69,57 @@ const Header = () => {
           </button>
         </div>
 
-        {/* CENTER: LOGO */}
+        {/* CENTER: BRAND IDENT */}
         <Link to="/shop/home" className="absolute left-1/2 -translate-x-1/2">
           <h1 className="text-2xl font-black italic tracking-tighter text-black uppercase transform -skew-x-12">
             Aura<span className="text-black/20">.</span>
           </h1>
         </Link>
 
-        {/* RIGHT: SEARCH & TACTICAL DROPDOWN */}
-        <div className="flex items-center gap-2 sm:gap-6">
+        {/* RIGHT: SEARCH, CART, PROFILE */}
+        <div className="flex items-center gap-2 sm:gap-4">
           <button className="hidden sm:flex p-2 hover:bg-black hover:text-white transition-all duration-300">
             <Search size={18} strokeWidth={2.5} />
           </button>
-          
-          <div className="h-6 w-[1px] bg-black/10 hidden sm:block" />
+
+          {/* CART TRIGGER */}
+          <div className="relative">
+            <button
+              onClick={() => setOpenCartSheet(true)}
+              className="p-2 hover:bg-black hover:text-white transition-all duration-300 relative group"
+            >
+              <ShoppingBag size={18} strokeWidth={2.5} />
+              {cartItems?.length > 0 && (
+                <span className="absolute top-0 right-0 bg-red-600 text-white text-[8px] font-black px-1 min-w-[14px] animate-pulse">
+                  {cartItems.length}
+                </span>
+              )}
+            </button>
+            <UserCartWrapper
+              openCartSheet={openCartSheet}
+              setOpenCartSheet={setOpenCartSheet}
+              cartItems={cartItems}
+            />
+          </div>
+
+          <div className="h-6 w-[1px] bg-black/10 hidden sm:block mx-2" />
+
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <div className="flex items-center gap-3 cursor-pointer group">
-                <div className="relative">
-                  <Avatar className="h-9 w-9 rounded-none border border-black/10 group-hover:border-black transition-all duration-300">
-                    <AvatarFallback className="bg-black text-white text-[10px] font-black rounded-none">
-                      {userInitial}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="absolute -bottom-1 -right-1 w-2 h-2 border-r border-b border-black opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
+                <Avatar className="h-9 w-9 rounded-none border border-black/10 group-hover:border-black transition-all duration-300">
+                  <AvatarFallback className="bg-black text-white group-hover:bg-white group-hover:text-black text-[10px] font-black rounded-none transition-colors border-2 border-transparent group-hover:border-black">
+                    {userInitial}
+                  </AvatarFallback>
+                </Avatar>
                 <ChevronDown size={12} className="text-black/30 group-hover:text-black transition-colors" />
               </div>
             </DropdownMenuTrigger>
 
-            <DropdownMenuContent 
-              align="end" 
-              className="w-64 rounded-none border-2 border-black bg-white p-0 shadow-[10px_10px_0px_rgba(0,0,0,0.05)] z-[100]"
+            <DropdownMenuContent
+              align="end"
+              className="w-64 rounded-none border-2 border-black bg-white p-0 shadow-[10px_10px_0px_rgba(0,0,0,0.05)] z-[100] font-mono"
             >
               <DropdownMenuLabel className="px-5 py-5 border-b border-black/5 bg-slate-50/50">
                 <div className="flex items-center gap-2 mb-1">
@@ -117,31 +130,54 @@ const Header = () => {
                   {displayName}
                 </p>
               </DropdownMenuLabel>
-              
               <div className="p-1">
-                <DropdownMenuItem 
+                {/* ACCOUNT ITEM */}
+                <DropdownMenuItem
                   onClick={() => navigate("/shop/account")}
-                  className="flex items-center gap-3 px-4 py-4 focus:bg-black focus:text-white rounded-none cursor-pointer transition-colors group"
+                  className="flex items-center gap-3 px-4 py-4 rounded-none cursor-pointer group transition-colors
+               data-[highlighted]:bg-black data-[highlighted]:[--accent-foreground:white]"
                 >
-                  <User size={14} strokeWidth={3} className="group-focus:animate-pulse" />
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em]">Access_Account</span>
+                  <User
+                    size={14}
+                    strokeWidth={3}
+                    className="text-[--accent-foreground] transition-colors"
+                  />
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[--accent-foreground]">
+                    Access_Account
+                  </span>
                 </DropdownMenuItem>
 
-                <DropdownMenuItem 
-                  className="flex items-center gap-3 px-4 py-4 focus:bg-black focus:text-white rounded-none cursor-pointer transition-colors"
+                {/* SETTINGS ITEM */}
+                <DropdownMenuItem
+                  className="flex items-center gap-3 px-4 py-4 rounded-none cursor-pointer group transition-colors
+               data-[highlighted]:bg-black data-[highlighted]:[--accent-foreground:white]"
                 >
-                  <Settings size={14} strokeWidth={3} />
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em]">System_Prefs</span>
+                  <Settings
+                    size={14}
+                    strokeWidth={3}
+                    className="text-[--accent-foreground] transition-colors"
+                  />
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[--accent-foreground]">
+                    System_Prefs
+                  </span>
                 </DropdownMenuItem>
 
                 <DropdownMenuSeparator className="bg-black/10 my-1" />
 
-                <DropdownMenuItem 
+                {/* LOGOUT ITEM */}
+                <DropdownMenuItem
                   onClick={handleLogout}
-                  className="flex items-center gap-3 px-4 py-4 focus:bg-red-600 focus:text-white rounded-none cursor-pointer transition-colors group"
+                  className="flex items-center gap-3 px-4 py-4 rounded-none cursor-pointer group transition-colors
+               data-[highlighted]:bg-red-600 data-[highlighted]:[--accent-foreground:white]"
                 >
-                  <LogOut size={14} strokeWidth={3} className="group-focus:translate-x-1 transition-transform" />
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em]">Terminate_Session</span>
+                  <LogOut
+                    size={14}
+                    strokeWidth={3}
+                    className="text-[--accent-foreground] transition-colors"
+                  />
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[--accent-foreground]">
+                    Terminate_Session
+                  </span>
                 </DropdownMenuItem>
               </div>
             </DropdownMenuContent>
@@ -149,89 +185,70 @@ const Header = () => {
         </div>
       </header>
 
-      {/* SIDEBAR NAVIGATION PANEL */}
+      {/* FULL SCREEN SIDEBAR */}
       <AnimatePresence>
         {isSidebarOpen && (
           <>
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsSidebarOpen(false)}
-              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[70]"
+              className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100]"
             />
-
-            <motion.div
+            <motion.aside
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
-              transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              className="fixed left-0 top-0 h-full w-full max-w-md bg-white z-[80] shadow-2xl p-10 flex flex-col border-r border-black"
+              transition={{ type: "spring", stiffness: 400, damping: 40 }}
+              className="fixed left-0 top-0 h-full w-full max-w-[450px] bg-white text-black z-[110] border-r-4 border-black flex flex-col p-8 md:p-12 font-mono"
             >
-              <div className="flex justify-between items-center mb-16">
-                <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 bg-black animate-pulse" />
-                  <span className="text-[10px] font-black tracking-[0.4em] text-black uppercase">Navigation_Index</span>
+              <div className="flex justify-between items-start mb-20 border-b-2 border-black pb-8">
+                <div>
+                  <h2 className="text-2xl font-black italic tracking-tighter transform -skew-x-12 uppercase">
+                    Navigation<span className="text-black/20">/</span>SYS
+                  </h2>
+                  <p className="text-[10px] font-bold text-black/40 mt-1 uppercase tracking-widest">Access_Directory.exe</p>
                 </div>
-                <button 
-                  onClick={() => setIsSidebarOpen(false)}
-                  className="p-2 border border-black/5 hover:bg-black hover:text-white transition-all duration-300"
-                >
-                  <X size={20} />
+                <button onClick={() => setIsSidebarOpen(false)} className="p-2 border-2 border-black hover:bg-black hover:text-white transition-all">
+                  <X size={24} />
                 </button>
               </div>
 
-              <nav className="flex flex-col gap-6">
+              <nav className="flex flex-col gap-2">
                 {[
                   { name: "Home", path: "/shop/home" },
                   { name: "Collections", path: "/shop/listing" },
-                  { name: "My Account", path: "/shop/account" },
-                  { name: "Checkout", path: "/shop/checkout" },
-                ].map((item, index) => {
+                  { name: "About_Us", path: "/shop/about" },
+                  { name: "Contact_Service", path: "/shop/contact" },
+                  { name: "Account_Root", path: "/shop/account" },
+                ].map((item) => {
                   const isActive = location.pathname === item.path;
                   return (
-                    <motion.div
+                    <Link
                       key={item.path}
-                      initial={{ opacity: 0, x: -30 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.05 }}
+                      to={item.path}
+                      onClick={() => setIsSidebarOpen(false)}
+                      className={`group flex items-center justify-between p-4 border transition-all ${isActive ? "bg-black text-white border-black" : "border-transparent hover:border-black"
+                        }`}
                     >
-                      <Link
-                        to={item.path}
-                        onClick={() => setIsSidebarOpen(false)}
-                        className="group flex items-center justify-between py-2"
-                      >
-                        <span className={`text-5xl font-black tracking-tighter transition-all italic transform -skew-x-12
-                          ${isActive ? "text-black" : "text-black/10 hover:text-black hover:-translate-x-2"}`}>
-                          {item.name}<span className="text-red-500 opacity-0 group-hover:opacity-100">_</span>
-                        </span>
-                        {isActive && (
-                          <motion.div layoutId="activeArrow">
-                            <ArrowRight className="text-black" strokeWidth={4} />
-                          </motion.div>
-                        )}
-                      </Link>
-                    </motion.div>
+                      <span className="text-3xl font-black uppercase tracking-tighter">{item.name}</span>
+                      <ArrowRight size={24} className={`transition-transform ${isActive ? "translate-x-0" : "-translate-x-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-0"}`} />
+                    </Link>
                   );
                 })}
               </nav>
 
-              <div className="mt-auto pt-10 border-t border-black/10">
-                <div className="flex items-center gap-5 p-4 bg-slate-50 border border-black/5">
-                  <div className="w-14 h-14 bg-black flex items-center justify-center font-black text-white text-xl">
-                    {userInitial}
-                  </div>
-                  <div className="overflow-hidden">
-                    <p className="font-black text-black uppercase tracking-tighter truncate leading-tight italic">
-                      {displayName}
-                    </p>
-                    <p className="text-[9px] font-bold text-black/40 tracking-[0.2em] mt-1 uppercase">
-                      Status // {isAuthenticated ? "Active_Node" : "Auth_Required"}
-                    </p>
+              <div className="mt-auto pt-8 border-t-2 border-black">
+                <div className="flex items-center gap-4 p-4 border-2 border-black bg-slate-50">
+                  <Terminal size={20} />
+                  <div className="flex-1">
+                    <p className="text-[10px] font-black uppercase text-black/40">Active_User</p>
+                    <p className="font-black uppercase text-sm truncate">{displayName}</p>
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </motion.aside>
           </>
         )}
       </AnimatePresence>

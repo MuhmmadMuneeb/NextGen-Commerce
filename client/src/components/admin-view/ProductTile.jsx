@@ -1,5 +1,6 @@
 import { Button } from "../ui/button";
 import { Card, CardContent, CardFooter } from "../ui/card";
+import { Edit3, Trash2, Package, Tag, AlertCircle } from "lucide-react";
 
 function AdminProductTile({
   product,
@@ -9,100 +10,97 @@ function AdminProductTile({
   handleDelete,
 }) {
   const hasSalePrice = Number(product?.salePrice) > 0;
-  const displayPrice = hasSalePrice ? product?.salePrice : product?.price;
 
   return (
-    <Card className="h-full w-full overflow-hidden rounded-[22px] border border-slate-800 bg-[linear-gradient(180deg,rgba(15,23,42,0.98)_0%,rgba(2,6,23,1)_100%)] text-slate-100 shadow-[0_14px_36px_rgba(2,6,23,0.28)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_44px_rgba(16,185,129,0.12)]">
+    <Card className="group h-full w-full rounded-none border-4 border-white bg-[#09090b] font-mono shadow-[8px_8px_0px_0px_rgba(255,255,255,0.05)] transition-all hover:translate-x-1 hover:translate-y-1 hover:shadow-none cursor-default">
       <div className="flex h-full flex-col">
-        <div className="border-b border-slate-800/80 bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.16),transparent_55%),linear-gradient(180deg,rgba(15,23,42,0.96),rgba(2,6,23,1))] p-2.5">
-          <div className="flex h-[108px] items-center justify-center rounded-[16px] border border-slate-800/80 bg-slate-950/85 p-2.5">
-            {product?.image ? (
-              <img
-                src={product.image}
-                alt={product?.title}
-                className="h-full w-full object-contain"
-              />
-            ) : (
-              <div className="text-sm font-medium text-slate-500">
-                No image available
-              </div>
-            )}
+        
+        {/* ASSET VISUALIZER */}
+        <div className="relative border-b-4 border-white bg-zinc-900 p-4 overflow-hidden">
+          <div className="flex h-[180px] items-center justify-center border-2 border-white bg-black p-2 relative">
+             {/* Industrial Grid Overlay */}
+             <div className="absolute inset-0 opacity-[0.1] pointer-events-none" 
+                  style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '16px 16px' }} />
+            
+            <img
+              src={product?.image}
+              alt={product?.title}
+              className="z-10 h-full w-full object-contain brightness-90 group-hover:brightness-110 group-hover:scale-105 transition-all duration-300"
+            />
           </div>
 
-          <div className="mt-2.5 flex items-start justify-between gap-2">
-            <div className="min-w-0 flex-1">
-              <p className="text-[9px] font-semibold uppercase tracking-[0.18em] text-emerald-300/80">
-                {product?.category || "Product"}
-              </p>
-              <h2 className="mt-1 min-h-[38px] line-clamp-2 text-[15px] font-semibold tracking-tight text-slate-50">
-                {product?.title}
-              </h2>
-            </div>
-            <div className="shrink-0 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-emerald-300">
-              {product?.brand || "Brand"}
-            </div>
+          {/* CATEGORY IDENTIFIER */}
+          <div className="absolute left-6 top-6 bg-white px-2 py-0.5 text-[8px] font-black uppercase text-black italic shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+            {product?.category || "UNSPECIFIED_ASSET"}
           </div>
+
+          {/* SALE INDICATOR */}
+          {hasSalePrice && (
+            <div className="absolute right-6 top-6 flex items-center gap-1 bg-red-600 px-2 py-0.5 text-[8px] font-black uppercase text-white animate-pulse">
+              <Tag size={8} />
+              PRICE_DROP
+            </div>
+          )}
         </div>
 
-        <CardContent className="flex flex-1 flex-col gap-2.5 p-3">
-          <p className="line-clamp-2 min-h-[30px] text-[12px] leading-4 text-slate-400">
-            {product?.description ||
-              "Clean product details with pricing and inventory."}
-          </p>
-
-          <div className="grid grid-cols-2 gap-2">
-            <div className="rounded-[16px] border border-slate-800 bg-slate-900/70 px-2.5 py-2">
-              <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-slate-500">
-                Stock
-              </p>
-              <p className="mt-1 text-[15px] font-semibold text-slate-100">
-                {product?.totalStock ?? 0}
-              </p>
-            </div>
-            <div className="rounded-[16px] border border-slate-800 bg-slate-900/70 px-2.5 py-2">
-              <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-slate-500">
-                Price
-              </p>
-              <div className="mt-1 flex items-baseline gap-1">
-                {hasSalePrice ? (
-                  <span className="text-[10px] font-medium text-slate-500 line-through">
-                    ${product?.price}
-                  </span>
-                ) : null}
-                <span className="text-[15px] font-semibold text-emerald-300">
-                  ${displayPrice}
-                </span>
-              </div>
-            </div>
+        {/* METADATA FIELDS */}
+        <CardContent className="flex flex-1 flex-col gap-4 p-5">
+          <div className="space-y-1">
+            <p className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Entry_Title:</p>
+            <h2 className="line-clamp-1 text-lg font-black uppercase italic tracking-tighter text-white cursor-text selection:bg-emerald-500 selection:text-black">
+              {product?.title}
+            </h2>
           </div>
 
-          <div
-            className={`min-h-[34px] rounded-[16px] px-2.5 py-2 text-[12px] font-medium ${
-              hasSalePrice
-                ? "border border-emerald-500/20 bg-emerald-500/10 text-emerald-200"
-                : "border border-transparent bg-transparent text-transparent"
-            }`}
-          >
-            {hasSalePrice ? `On sale now for $${product?.salePrice}` : " "}
+          <div className="grid grid-cols-2 gap-px border-2 border-white bg-white">
+            {/* STOCK DATA */}
+            <div className="bg-black p-3 hover:bg-zinc-900 transition-colors">
+              <div className="flex items-center gap-1 mb-1">
+                <Package size={10} className="text-zinc-600" />
+                <p className="text-[9px] font-black text-zinc-600 uppercase">INVENTORY</p>
+              </div>
+              <p className="text-sm font-black text-white cursor-text">{product?.totalStock ?? 0}</p>
+            </div>
+            
+            {/* VALUATION DATA */}
+            <div className="bg-black p-3 hover:bg-zinc-900 transition-colors">
+              <div className="flex items-center gap-1 mb-1">
+                <AlertCircle size={10} className="text-zinc-600" />
+                <p className="text-[9px] font-black text-zinc-600 uppercase">VALUATION</p>
+              </div>
+              <div className="flex flex-col">
+                <p className={`text-sm font-black cursor-text ${hasSalePrice ? 'text-zinc-600 line-through text-[10px]' : 'text-emerald-400'}`}>
+                  ${product?.price}
+                </p>
+                {hasSalePrice && (
+                  <p className="text-sm font-black text-emerald-400 cursor-text">
+                    ${product?.salePrice}
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
         </CardContent>
 
-        <CardFooter className="mt-auto grid grid-cols-2 gap-2 p-3 pt-0">
+        {/* COMMAND INTERFACE */}
+        <CardFooter className="grid grid-cols-2 gap-3 p-5 pt-0">
           <Button
-            className="h-9 rounded-[16px] border border-slate-700 bg-slate-100 text-[13px] font-semibold text-slate-950 transition-all duration-300 hover:bg-emerald-500 hover:text-white"
             onClick={() => {
               setOpenCreateProductsDialog(true);
               setCurrentEditedId(product?._id);
               setFormData(product);
             }}
+            className="h-12 rounded-none border-2 border-white bg-white text-black font-black uppercase hover:bg-emerald-500 hover:border-emerald-500 transition-all cursor-pointer active:translate-y-1"
           >
-            Edit
+            <Edit3 size={16} className="mr-2" />
+            EDIT
           </Button>
           <Button
-            className="h-9 rounded-[16px] border border-red-500/20 bg-red-500/10 text-[13px] font-semibold text-red-200 transition-all duration-300 hover:bg-red-500 hover:text-white"
             onClick={() => handleDelete(product?._id)}
+            className="h-12 rounded-none border-2 border-white bg-transparent text-white font-black uppercase hover:bg-red-600 hover:border-red-600 transition-all cursor-pointer active:translate-y-1"
           >
-            Delete
+            <Trash2 size={16} className="mr-2" />
+            DEL
           </Button>
         </CardFooter>
       </div>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Header from './Header';
 import Sidebar from './sidebar';
 import { Outlet } from 'react-router-dom';
+import Footer from './Footer';
 
 const ShoppingLayout = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -15,6 +16,7 @@ const ShoppingLayout = () => {
                     <Outlet />
                 </div>
             </main>
+            <Footer />
         </div>
     );
 };
