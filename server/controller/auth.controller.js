@@ -50,7 +50,7 @@ export const Login = async (req, res) => {
         const secret = process.env.JWT_SECRET
         if (!secret) return res.status(500).json("JWT secret not found");
         const token = jwt.sign(
-            { id: user._id, role: user.role },
+            { id: user._id, role: user.role,userName:user.userName },
             secret,
             { expiresIn: "1d" }
         );

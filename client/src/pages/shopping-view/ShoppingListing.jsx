@@ -33,7 +33,7 @@ const ShoppingListing = () => {
   const [sort, setSort] = useState("price-lowtohigh");
   const [filters, setFilters] = useState({});
   const [open, setOpen] = useState(false);
-  console.log(productDetails)
+  
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Load initial filters from SessionStorage

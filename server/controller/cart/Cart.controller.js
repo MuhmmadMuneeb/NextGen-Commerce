@@ -1,5 +1,5 @@
 import Cart from "../../models/Cart.js";
-import Product from "../../models/Product.js";
+import Product from "../../models/Product.model.js";
 
 // Helper function
 const formatCartItems = (items) =>
@@ -12,7 +12,6 @@ const formatCartItems = (items) =>
     quantity: item.quantity,
   }));
 
-// ➕ Add to Cart
 export const addToCart = async (req, res) => {
   try {
     const { userId, productId, quantity } = req.body;
