@@ -2,12 +2,15 @@ import { Button } from "../ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
 import { useNavigate } from "react-router-dom";
 import { ScrollArea } from "../ui/scroll-area";
-import { Trash2 } from "lucide-react";
+import UserCartItemsContent from "./UserCartItemsContent";
 
 function UserCartWrapper({ cartItems, openCartSheet, setOpenCartSheet }) {
   const navigate = useNavigate();
 
-  const totalAmount = cartItems.reduce(
+  // cartItems is already an array passed from Header
+  const manifestItems = cartItems || [];
+
+  const totalAmount = manifestItems.reduce(
     (sum, item) => sum + (item.salePrice > 0 ? item.salePrice : item.price) * item.quantity,
     0
   );
@@ -23,31 +26,21 @@ function UserCartWrapper({ cartItems, openCartSheet, setOpenCartSheet }) {
             </SheetTitle>
           </div>
           <p className="text-[9px] font-bold text-black/40 uppercase tracking-[0.3em] mt-1">
-            Buffer_Units: {cartItems?.length || 0}
+            Buffer_Units: {manifestItems.length}
           </p>
         </SheetHeader>
 
         <ScrollArea className="flex-1 px-6">
           <div className="mt-8 space-y-6">
-            {cartItems && cartItems.length > 0 ? (
-              cartItems.map((item) => (
-                <div key={item.productId} className="flex gap-4 items-start border-b border-black/5 pb-4 group">
-                  <div className="h-20 w-20 bg-slate-50 border border-black/10 p-1 rounded-none overflow-hidden flex-shrink-0">
-                    <img src={item.image} alt={item.title} className="h-full w-full object-cover grayscale group-hover:grayscale-0 transition-all" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-xs font-black uppercase tracking-tight leading-none">{item.title}</h3>
-                    <p className="text-[10px] text-black/40 mt-1 uppercase">QTY: {item.quantity}</p>
-                    <p className="text-sm font-black mt-2 italic">${(item.salePrice || item.price) * item.quantity}</p>
-                  </div>
-                  <button className="text-black/20 hover:text-red-600 self-center transition-colors">
-                    <Trash2 size={16} />
-                  </button>
-                </div>
+            {manifestItems.length > 0 ? (
+              manifestItems.map((item) => (
+                <UserCartItemsContent key={item.productId || item._id} cartItem={item} />
               ))
             ) : (
               <div className="py-20 text-center">
-                <p className="text-[10px] font-black uppercase tracking-[0.5em] text-black/20">DATA_NOT_FOUND</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.5em] text-black/20">
+                  DATA_NOT_FOUND // EMPTY_REGISTRY
+                </p>
               </div>
             )}
           </div>
@@ -64,7 +57,7 @@ function UserCartWrapper({ cartItems, openCartSheet, setOpenCartSheet }) {
               setOpenCartSheet(false);
             }}
             className="w-full h-14 bg-black text-white hover:bg-zinc-800 rounded-none uppercase font-black tracking-[0.2em] text-xs"
-            disabled={cartItems.length === 0}
+            disabled={manifestItems.length === 0}
           >
             Initiate_Checkout_Sequence
           </Button>

@@ -7,17 +7,27 @@ const initialState = {
 }
 
 export const allProducts = createAsyncThunk(
-    "products/fetchAllProducts",
-    async (filtersparams = {}, sortparams = "price-lowtohigh") => {
-        const querry = new URLSearchParams({ ...filtersparams, sort: sortparams }).toString()
-        const result = await axios.get(`http://localhost:3000/api/shop/products/get?${querry}`, {
-            headers: {
-                "Content-Type": "application/json",
-            },
-        });
+  "products/fetchAllProducts",
+  // Destructure the single argument into filterParams and sortParams
+  async ({ filterParams, sortParams }) => {
+    
+    // Create query string: Use 'sortBy' to match your backend controller
+    const query = new URLSearchParams({
+      ...filterParams,
+      sortBy: sortParams || "price-lowtohigh",
+    }).toString();
 
-        return result.data;
-    },
+    const result = await axios.get(
+      `http://localhost:3000/api/shop/products/get?${query}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return result.data;
+  }
 );
 
 export const fetchProductDetails = createAsyncThunk(

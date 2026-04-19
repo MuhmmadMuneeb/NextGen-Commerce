@@ -1,41 +1,52 @@
 import Product from "../../models/Product.model.js";
 
 export const allProducts = async (req, res) => {
-    try {
-        const {category = [], brand = [], sortBy = "price-lowtohigh"} = req.query
-        let filters = {}
-        if (category.length) {
-            filters.category = { $in: category.split(",") }
-        }
-        if (brand.length) {
-            filters.brand = { $in: brand.split(",") }
-        }
-        let sort = {}
-        switch (sortBy) {
-            case "price-lowtohigh":
-                sort.price = 1
-                break;
-            case "price-hightolow":
-                sort.price = -1
-                break;
-            case "title-atoz":
-                sort.price = 1
-                break;
-            case "title-ztoa":
-                sort.price = -1
-                break;
-            default:
-                sort.price = 1
-                break;
-        }
-        const products = await Product.find(filters).sort(sort)
-        res.status(200).json({ success: true, message: "all products fetched", data: products })
-    } catch (error) {
+  try {
+    // Destructure without forcing arrays yet, as req.query comes in as strings
+    const { category, brand, sortBy = "price-lowtohigh" } = req.query;
+    
+    let filters = {};
 
-        console.log("error in filter")
-        res.status(500).json({ success: false, message: error.message })
+    // Use a more robust check: ensure the string exists and isn't just whitespace
+    if (category && category.trim() !== "") {
+      filters.category = { $in: category.split(",") };
     }
-}
+
+    if (brand && brand.trim() !== "") {
+      filters.brand = { $in: brand.split(",") };
+    }
+
+    let sort = {};
+    switch (sortBy) {
+      case "price-lowtohigh":
+        sort.price = 1;
+        break;
+      case "price-hightolow":
+        sort.price = -1;
+        break;
+      case "title-atoz":
+        sort.title = 1; // Fixed: was sort.price
+        break;
+      case "title-ztoa":
+        sort.title = -1; // Fixed: was sort.price
+        break;
+      default:
+        sort.price = 1;
+        break;
+    }
+
+    const products = await Product.find(filters).sort(sort);
+
+    res.status(200).json({ 
+      success: true, 
+      message: "Products fetched successfully", 
+      data: products 
+    });
+  } catch (error) {
+    console.error("Filter Error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
 export const productDetails = async (req, res) => {
     try {
         

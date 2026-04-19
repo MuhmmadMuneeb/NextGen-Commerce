@@ -21,7 +21,6 @@ function CommonForm({
   function renderInputsByComponentType(getControlItem) {
     let element = null;
     const value = formData[getControlItem.name] || "";
-    console.log(value)
 
     switch (getControlItem.componentType) {
       case "input":
@@ -40,8 +39,8 @@ function CommonForm({
             }
           />
         );
-
         break;
+
       case "select":
         element = (
           <Select
@@ -59,7 +58,7 @@ function CommonForm({
             <SelectContent>
               {getControlItem.options && getControlItem.options.length > 0
                 ? getControlItem.options.map((optionItem) => (
-                    <SelectItem key={optionItem.name} value={optionItem.name}>
+                    <SelectItem key={optionItem.id} value={optionItem.id}>
                       {optionItem.label}
                     </SelectItem>
                   ))
@@ -67,8 +66,8 @@ function CommonForm({
             </SelectContent>
           </Select>
         );
-
         break;
+
       case "textarea":
         element = (
           <Textarea
@@ -84,7 +83,6 @@ function CommonForm({
             }
           />
         );
-
         break;
 
       default:
@@ -119,7 +117,7 @@ function CommonForm({
           </div>
         ))}
       </div>
-      <Button disabled={isBtnDisabled} type="submit" className="mt-2 w-full">
+      <Button disabled={isBtnDisabled} type="submit" className="mt-5 w-full">
         {buttonText || "Submit"}
       </Button>
     </form>

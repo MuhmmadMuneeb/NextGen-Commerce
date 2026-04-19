@@ -10,11 +10,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ArrowUpDownIcon, ScanQrCodeIcon, ActivityIcon } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { allProducts } from "../../store/shop/Shop-product-slice/index";
+import { allProducts, fetchProductDetails } from "../../store/shop/Shop-product-slice/index";
+import { addToCart } from "@/store/cart-slice"; // Ensure this path is correct
 import ShoppingProductTile from "../../components/shopping-view/ProductTile";
 import { useSearchParams } from "react-router-dom";
 import ProductDetailsDialog from "@/components/shopping-view/productDetails";
-import { fetchProductDetails } from "../../store/shop/Shop-product-slice/index";
+import { toast } from "sonner";
 
 function createSearchParamsHelper(filters) {
   const queryParams = [];
@@ -29,54 +30,93 @@ function createSearchParamsHelper(filters) {
 
 const ShoppingListing = () => {
   const dispatch = useDispatch();
+
+  // Selectors
   const { productList, isLoading, productDetails } = useSelector((state) => state.products);
+  const { user } = useSelector((state) => state.auth);
+  // Change this line:
+// Replace line 38 with this:
+const { cartItems } = useSelector((state) => state.cart || state.shopCart || { cartItems: { items: [] } });
+
+  // Then, create a helper variable to represent the actual array:
+  const actualCartItems = cartItems?.items || [];
+  console.log(actualCartItems, "CART_ITEMS_FROM_LISTING");
+
   const [sort, setSort] = useState("price-lowtohigh");
   const [filters, setFilters] = useState({});
   const [open, setOpen] = useState(false);
-  
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Load initial filters from SessionStorage
+  // 1. Initial Load: Sync filters from SessionStorage
   useEffect(() => {
     const savedFilters = JSON.parse(sessionStorage.getItem("filters")) || {};
     setFilters(savedFilters);
   }, []);
 
+  // 2. Logic: Handle Add to Cart with Stock Validation
+  const handleAddToCart = (getCurrentProductId, totalStock) => {
+    const userId = user?.id || user?._id;
+
+    if (!userId) {
+      toast.error("Please login to access the cart registry.");
+      return;
+    }
+
+    // FIX: Use the actual array to check existing quantity
+    const currentCartItem = actualCartItems.find(
+      (item) => item.productId === getCurrentProductId
+    );
+
+    const currentQuantity = currentCartItem?.quantity || 0;
+
+    if (currentQuantity + 1 > totalStock) {
+      toast.error(`Insufficient Units: Only ${totalStock} available in inventory.`);
+      return;
+    }
+
+    dispatch(
+      addToCart({
+        userId,
+        productId: getCurrentProductId,
+        quantity: 1,
+      })
+    ).then((data) => {
+      if (data?.payload?.success) {
+        toast.success("Unit successfully added to manifest.");
+      }
+    });
+  };
+
   const handleGetProductDetails = (id) => {
     dispatch(fetchProductDetails(id));
   };
+
   const handleFilter = (sectionId, currentOption) => {
     let cpyFilters = { ...filters };
-
     if (!cpyFilters[sectionId]) {
-      // Create new category if it doesn't exist
       cpyFilters[sectionId] = [currentOption];
     } else {
       const indexOfCurrentOption = cpyFilters[sectionId].indexOf(currentOption);
       if (indexOfCurrentOption === -1) {
-        // Add option if not present
         cpyFilters[sectionId] = [...cpyFilters[sectionId], currentOption];
       } else {
-        // Remove option if already present (Toggle off)
         cpyFilters[sectionId] = cpyFilters[sectionId].filter(item => item !== currentOption);
       }
     }
-
     setFilters(cpyFilters);
     sessionStorage.setItem("filters", JSON.stringify(cpyFilters));
   };
 
-  // Sync state to URL search parameters
+  // 3. Sync state to URL search parameters
   useEffect(() => {
     const createQueryString = createSearchParamsHelper(filters);
     setSearchParams(new URLSearchParams(createQueryString));
-  }, [filters]);
+  }, [filters, setSearchParams]);
 
-  // Fetch products
+  // 4. Fetch products on filter/sort change
   useEffect(() => {
     if (filters !== null && sort !== null) {
       dispatch(
-
         allProducts({
           filterParams: filters,
           sortParams: sort,
@@ -85,7 +125,7 @@ const ShoppingListing = () => {
     }
   }, [dispatch, filters, sort]);
 
-
+  // 5. Manage Dialog State
   useEffect(() => {
     if (productDetails) {
       setOpen(true);
@@ -93,8 +133,8 @@ const ShoppingListing = () => {
   }, [productDetails]);
 
   return (
-    <div  className="min-h-screen bg-white text-black font-mono">
-      {/* 01. UTILITY BAR */}
+    <div className="min-h-screen bg-white text-black font-mono">
+      {/* UTILITY BAR */}
       <div className="border-b border-black/10 px-6 py-4 flex justify-between items-center sticky top-0 z-50 bg-white/80 backdrop-blur-md">
         <div className="flex items-center gap-3">
           <div className="h-2 w-2 bg-black animate-pulse" />
@@ -129,7 +169,7 @@ const ShoppingListing = () => {
                   <ArrowUpDownIcon className="ml-3 h-4 w-4 opacity-40 group-hover:rotate-180 transition-transform" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-white border-2 border-black rounded-none min-w-[240px]">
+              <DropdownMenuContent className="bg-white border-2 border-black rounded-none min-w-[240px] z-[70]">
                 <DropdownMenuRadioGroup value={sort} onValueChange={setSort}>
                   {[
                     { id: "price-lowtohigh", label: "SORT // Price_Ascending" },
@@ -137,7 +177,7 @@ const ShoppingListing = () => {
                     { id: "title-atoz", label: "INDEX // Alpha_A_Z" },
                     { id: "title-ztoa", label: "INDEX // Alpha_Z_A" },
                   ].map((item) => (
-                    <DropdownMenuRadioItem key={item.id} value={item.id} className="py-4 text-xs font-bold tracking-wider">
+                    <DropdownMenuRadioItem key={item.id} value={item.id} className="py-4 text-xs font-bold tracking-wider cursor-pointer">
                       {item.label}
                     </DropdownMenuRadioItem>
                   ))}
@@ -163,7 +203,7 @@ const ShoppingListing = () => {
             <div className="hidden lg:flex flex-1 mx-12 h-[1px] bg-black/10 relative">
               <div
                 className="absolute inset-y-0 left-0 bg-black transition-all duration-1000"
-                style={{ width: isLoading ? "0%" : `${Math.min((productList?.length / 20) * 100, 100)}%` }}
+                style={{ width: isLoading ? "0%" : `${Math.min(((productList?.length || 0) / 20) * 100, 100)}%` }}
               />
             </div>
 
@@ -185,12 +225,13 @@ const ShoppingListing = () => {
             ) : productList?.length > 0 ? (
               productList.map((product) => (
                 <div key={product._id} className="relative group border border-black/5 p-2 hover:border-black transition-all">
-                  <div className="absolute bottom-4 left-4 bg-black text-white text-[9px] font-bold px-2 py-0.5 opacity-0 group-hover:opacity-100 z-10">
+                  <div className="absolute bottom-4 left-4 bg-black text-white text-[9px] font-bold px-2 py-0.5 opacity-0 group-hover:opacity-100 z-10 pointer-events-none">
                     REF_{product._id.substring(0, 6)}
                   </div>
                   <ShoppingProductTile
                     product={product}
                     handleGetProductDetails={handleGetProductDetails}
+                    handleAddToCart={handleAddToCart}
                   />
                 </div>
               ))
@@ -202,8 +243,13 @@ const ShoppingListing = () => {
           </div>
         </main>
       </div>
-      <ProductDetailsDialog open={open} setOpen={setOpen} productDetails={productDetails} />
 
+      <ProductDetailsDialog
+        open={open}
+        setOpen={setOpen}
+        productDetails={productDetails}
+        handleAddToCart={handleAddToCart}
+      />
     </div>
   );
 };
