@@ -2,6 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import authSlice from "./auth_slice";
 import adminProductsReducer from "./Admin-product-slice/Index";
 import productSlice from "./shop/shop-Product-slice/index.jsx"
+import emailReducer from "./email-slice/email.jsx";
 import shopCartSlice from "./cart-slice";
 
 const store = configureStore({
@@ -10,6 +11,7 @@ const store = configureStore({
     adminProducts: adminProductsReducer, 
     products:productSlice,
     cart: shopCartSlice, // Ensure this is imported correctly
+      email: emailReducer, 
   },
 });
 

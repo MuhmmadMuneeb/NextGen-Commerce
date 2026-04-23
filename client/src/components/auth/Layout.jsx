@@ -1,88 +1,120 @@
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Terminal, ShieldCheck, Activity } from 'lucide-react';
 
-const Layout = () => {
+const AuthLayout = () => {
     const location = useLocation();
     const isLogin = location.pathname.includes('login');
 
     return (
-        <section className='h-screen flex items-center bg-gray-50 overflow-hidden'>
-            {/* Left Side: Illustration with floating animation */}
+        <section className='h-screen flex flex-col lg:flex-row items-center bg-white text-black font-mono overflow-hidden'>
+            
+            {/* LEFT SIDE: Technical Branding */}
             <motion.div 
-                initial={{ x: -100, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-                className='h-full bg-[#a06df2] w-[40%] hidden lg:flex justify-center items-center relative overflow-hidden'
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                className='hidden lg:flex flex-col justify-between h-full w-[40%] bg-black text-white p-12 relative overflow-hidden'
             >
-                {/* Decorative background circles */}
-                <div className="absolute top-[-10%] left-[-10%] w-64 h-64 rounded-full bg-white/10 blur-3xl" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-80 h-80 rounded-full bg-purple-900/20 blur-3xl" />
+                {/* Background Grid Pattern */}
+                <div className="absolute inset-0 opacity-10 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
                 
-                <motion.img 
-                    src="/img.svg" 
-                    className='h-96 z-10' 
-                    alt="Illustration"
-                    animate={{ y: [0, -15, 0] }}
-                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                />
+                <div className="z-10 space-y-4">
+                    <div className="flex items-center gap-3">
+                        <div className="h-2 w-8 bg-white animate-pulse" />
+                        <span className="text-[10px] font-black uppercase tracking-[0.4em]">Auth_Protocol_v4</span>
+                    </div>
+                    <h1 className="text-7xl font-black italic uppercase leading-[0.85] tracking-tighter -skew-x-12">
+                        THE<br />ARCHIVE_
+                    </h1>
+                </div>
+
+                <div className="z-10">
+                    <div className="flex items-center gap-4 mb-8">
+                        <ShieldCheck className="text-white/40" size={32} />
+                        <div>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-white/40">Secure_Access</p>
+                            <p className="text-xs font-bold">AES-256 Encrypted Tunnel</p>
+                        </div>
+                    </div>
+                    <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] leading-relaxed max-w-xs">
+                        System initialization requires identity verification. Accessing the archive grants full requisition privileges.
+                    </p>
+                </div>
+
+                {/* Decorative Matrix-style text */}
+                <div className="absolute bottom-[-10%] right-[-10%] text-[15vw] font-black italic opacity-5 select-none uppercase">
+                    Aura
+                </div>
             </motion.div>
 
-            {/* Right Side: Form Area */}
-            <div className='flex w-full lg:w-[60%] justify-center items-center p-8'>
+            {/* RIGHT SIDE: Terminal Form Area */}
+            <div className='flex-1 flex justify-center items-center p-8 bg-[url("https://www.transparenttextures.com/patterns/graphy.png")]'>
                 <motion.div 
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.2 }}
-                    className='flex flex-col w-full max-w-md space-y-8'
+                    className='w-full max-w-md bg-white border-4 border-black p-10 shadow-[16px_16px_0px_0px_rgba(0,0,0,1)] relative'
                 >
-                    <div className='space-y-3'>
-                        <h1 className='text-4xl font-extrabold tracking-tight text-gray-900'>
-                            Get more things done.
-                        </h1>
-                        <p className='text-gray-500 text-lg'>
-                            Access the most powerful tools in the <br className="hidden md:block" /> 
-                            design and web industry.
-                        </p>
+                    {/* Corner Accent */}
+                    <div className="absolute top-0 right-0 p-2 border-l-4 border-b-4 border-black bg-black text-white">
+                        <Terminal size={14} />
                     </div>
 
-                    {/* Animated Tabs */}
-                    <div className='flex items-center gap-8 border-b border-gray-100 pb-2 relative'>
-                        <Link to="/auth/login" className={`relative pb-2 transition-colors ${isLogin ? 'text-black font-bold' : 'text-gray-400'}`}>
+                    <div className='space-y-2 mb-10'>
+                        <div className="flex items-center gap-2 text-[10px] font-black text-black/40 uppercase tracking-widest">
+                            <Activity size={12} /> Live_Connection
+                        </div>
+                        <h2 className='text-4xl font-black uppercase italic tracking-tighter'>
+                            {isLogin ? "Init_Login" : "Register_ID"}
+                        </h2>
+                    </div>
+
+                    {/* Navigation Tabs */}
+                    <div className='flex items-center gap-0 border-4 border-black mb-10'>
+                        <Link 
+                            to="/auth/login" 
+                            className={`flex-1 py-4 text-center text-xs font-black uppercase tracking-widest transition-all cursor-pointer
+                                ${isLogin ? 'bg-black text-white' : 'bg-white text-black hover:bg-slate-50'}`}
+                        >
                             Login
-                            {isLogin && <motion.span layoutId="underline" className='absolute bottom-0 left-0 h-1 bg-[#57d48d] w-full rounded-full' />}
                         </Link>
-                        <Link to="/auth/register" className={`relative pb-2 transition-colors ${!isLogin ? 'text-black font-bold' : 'text-gray-400'}`}>
+                        <Link 
+                            to="/auth/register" 
+                            className={`flex-1 py-4 text-center text-xs font-black uppercase tracking-widest transition-all cursor-pointer
+                                ${!isLogin ? 'bg-black text-white' : 'bg-white text-black hover:bg-slate-50'}`}
+                        >
                             Register
-                            {!isLogin && <motion.span layoutId="underline" className='absolute bottom-0 left-0 h-1 bg-[#57d48d] w-full rounded-full' />}
                         </Link>
                     </div>
 
-                    {/* Page Content with Slide-Fade transition */}
+                    {/* Form Outlet */}
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={location.pathname}
-                            initial={{ x: 10, opacity: 0 }}
-                            animate={{ x: 0, opacity: 1 }}
-                            exit={{ x: -10, opacity: 0 }}
-                            transition={{ duration: 0.3 }}
+                            initial={{ opacity: 0, x: 10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -10 }}
+                            transition={{ duration: 0.2 }}
+                            className="min-h-[300px]"
                         >
                             <Outlet />
                         </motion.div>
                     </AnimatePresence>
 
-                    {/* Social Login Section */}
-                    <div className='pt-6'>
-                        <div className='flex items-center gap-4 mb-4'>
-                            <div className='h-[1px] bg-gray-200 flex-1'></div>
-                            <span className='text-gray-400 text-sm'>Or login with</span>
-                            <div className='h-[1px] bg-gray-200 flex-1'></div>
-                        </div>
-                        <div className='flex justify-center gap-6'>
-                            {['Facebook', 'Google', 'LinkedIn'].map((social) => (
-                                <a key={social} href="#" className='text-gray-600 hover:text-[#a06df2] font-medium text-sm transition-all hover:scale-105'>
+                    {/* Social Logic */}
+                    <div className='mt-10 pt-8 border-t-2 border-black border-dashed'>
+                        <span className='block text-center text-[10px] font-black uppercase tracking-[0.3em] text-black/40 mb-6'>
+                            External_Identity_Sync
+                        </span>
+                        <div className='grid grid-cols-3 gap-4'>
+                            {['Google', 'Github', 'LinkedIn'].map((social) => (
+                                <button 
+                                    key={social} 
+                                    className='py-3 border-2 border-black text-[10px] font-black uppercase hover:bg-black hover:text-white transition-all cursor-pointer'
+                                >
                                     {social}
-                                </a>
+                                </button>
                             ))}
                         </div>
                     </div>
@@ -92,4 +124,4 @@ const Layout = () => {
     );
 };
 
-export default Layout;
+export default AuthLayout;

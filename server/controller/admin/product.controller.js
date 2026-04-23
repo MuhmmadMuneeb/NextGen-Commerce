@@ -3,24 +3,18 @@ import Product from "../../models/Product.model.js";
 
 export const imageHandleUpload = async (req, res) => {
     try {
-        console.log("FILE:", req.file);
-
-        if (!req.file) {
+          if (!req.file) {
             return res.status(400).json({
                 success: false,
                 message: "Image is required",
             });
         }
-
-      
         const result = await imageUploadUtil(req.file);
-
         res.status(200).json({
             success: true,
             result,
         });
     } catch (error) {
-        console.error("UPLOAD ERROR:", error);
         res.status(500).json({
             success: false,
             message: error.message,
@@ -36,9 +30,7 @@ export const addProducts = async (req, res) => {
         if (!title || !image || !description || !category || !brand || !price || !salePrice || !totalStock) {
             return res.status(400).json({ success: false, message: "All fields are required" })
         }
-        // if (!newProduct) {
-        //     return res.status(400).json({ success: false, message: "failed to add product" })
-        // }
+        
         await newProduct.save()
         res.status(201).json({ success: true, message: "Product added successfully", newProduct })
     } catch (error) {
