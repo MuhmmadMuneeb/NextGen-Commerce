@@ -3,17 +3,29 @@ import Product from "../../models/Product.model.js";
 export const allProducts = async (req, res) => {
   try {
     // Destructure without forcing arrays yet, as req.query comes in as strings
-    const { category, brand, sortBy = "price-lowtohigh" } = req.query;
+    // Look for params directly or inside filterParams/sortParams objects
+    const categoryQuery = req.query.category || req.query.filterParams?.category;
+    const brandQuery = req.query.brand || req.query.filterParams?.brand;
+    const sortBy = req.query.sortBy || req.query.sortParams || "price-lowtohigh";
     
     let filters = {};
 
-    // Use a more robust check: ensure the string exists and isn't just whitespace
-    if (category && category.trim() !== "") {
-      filters.category = { $in: category.split(",") };
+    // Helper to safely parse filter values (handles strings, arrays, and undefined)
+    const parseFilter = (val) => {
+      if (!val) return null;
+      if (Array.isArray(val)) return val;
+      if (typeof val === "string" && val.trim() !== "") return val.split(",");
+      return null;
+    };
+
+    const categories = parseFilter(categoryQuery);
+    if (categories) {
+      filters.category = { $in: categories };
     }
 
-    if (brand && brand.trim() !== "") {
-      filters.brand = { $in: brand.split(",") };
+    const brands = parseFilter(brandQuery);
+    if (brands) {
+      filters.brand = { $in: brands };
     }
 
     let sort = {};
@@ -56,8 +68,7 @@ export const productDetails = async (req, res) => {
         }
         res.status(200).json({ success: true, message: "all products fetched", data: products })
     } catch (error) {
-
-        console.log("error in filter")
+        console.error("Error fetching product details:", error);
         res.status(500).json({ success: false, message: error.message })
     }
 }

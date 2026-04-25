@@ -1,23 +1,25 @@
 import express from "express";
-import { 
-    addSlider, 
-    deleteSlider, 
-    getActiveSliders 
+import {
+    addSlider,
+    deleteSlider,
+    getActiveSliders,
+    getSliders,
+    toggleSliderStatus,
+    updateSlider
 } from "../../controller/slider/slider.controller.js";
-import { 
-    createOrUpdatePopup, 
-    getLivePopup 
-} from "../../controller/popup/popup.controller.js";
 import { upload } from "../../helper/cloudinary.js"
 
 const router = express.Router();
 
 //slider routes
-router.post("/slider/add",upload.single("image"), addSlider);
-router.delete("/slider/delete/:id", deleteSlider);
-router.get("/slider/get", getActiveSliders);
-// popup routes
-router.post("/popup/configure",upload.single("image"), createOrUpdatePopup);
-router.get("/popup/status", getLivePopup);
+
+router.post("/add", upload.single("image"), addSlider);
+router.get("/get", getSliders);
+router.put("/update/:id",upload.single("image"), updateSlider);    // Note the :id param
+router.delete("/delete/:id", deleteSlider); // Note the :id param
+router.get("/public/get", getActiveSliders);
+router.patch("/toggle/:id", toggleSliderStatus); 
+
+
 
 export default router;

@@ -14,6 +14,8 @@ import { motion } from "framer-motion";
 
 /* ---------------- MENU CONFIG ---------------- */
 
+/* ---------------- UPDATED MENU CONFIG ---------------- */
+
 const adminSidebarMenuItems = [
   {
     id: "dashboard",
@@ -29,19 +31,28 @@ const adminSidebarMenuItems = [
     icon: Database,
     description: "resource_nodes",
   },
+  // --- NEW DESIGN NODES ---
+  {
+    id: "slider",
+    label: "HERO_SLIDER",
+    path: "/admin/slider",
+    icon: Cpu, // Using Cpu for high-tech feel
+    description: "visual_deployment",
+  },
+  {
+    id: "popup",
+    label: "SYSTEM_POPUP",
+    path: "/admin/popup",
+    icon: FileCode,
+    description: "alert_manifest",
+  },
+  // -----------------------
   {
     id: "orders",
     label: "OPERATIONS",
     path: "/admin/orders",
     icon: TableProperties,
     description: "active_streams",
-  },
-  {
-    id: "logs",
-    label: "SYSTEM_LOGS",
-    path: "/admin/logs",
-    icon: FileCode,
-    description: "kernel_events",
   },
 ];
 
@@ -102,11 +113,10 @@ function SidebarContent({ setOpen }) {
               key={item.id}
               onClick={() => handleNavigate(item.path)}
               className={`group relative flex items-center gap-4 border-2 p-3 transition-all cursor-pointer
-              ${
-                isActive
+              ${isActive
                   ? "bg-white text-black border-white shadow-[4px_4px_0px_0px_rgba(16,185,129,0.8)]"
                   : "bg-transparent text-zinc-500 border-transparent hover:border-zinc-700 hover:text-white hover:bg-zinc-900/50"
-              }`}
+                }`}
             >
               <div className={`p-2 border-2 transition-colors ${isActive ? 'border-black bg-black text-white' : 'border-zinc-800 text-zinc-500 group-hover:border-white group-hover:text-white'}`}>
                 <Icon size={18} strokeWidth={isActive ? 3 : 2} />
@@ -135,11 +145,11 @@ function SidebarContent({ setOpen }) {
           <p>Local_Node: <span className="text-zinc-300">Sargodha_SO_1</span></p>
           <p>Access_Level: <span className="text-emerald-500">Root_Admin</span></p>
           <div className="mt-3 h-1 w-full bg-zinc-800 overflow-hidden relative">
-             <motion.div 
-               animate={{ x: [-100, 200] }} 
-               transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
-               className="h-full w-1/3 bg-emerald-500 shadow-[0_0_10px_#10b981]" 
-             />
+            <motion.div
+              animate={{ x: [-100, 200] }}
+              transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
+              className="h-full w-1/3 bg-emerald-500 shadow-[0_0_10px_#10b981]"
+            />
           </div>
         </div>
       </div>

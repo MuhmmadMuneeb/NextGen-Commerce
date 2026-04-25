@@ -224,3 +224,74 @@ export const addressFormControls = [
     placeholder: "Enter any additional notes",
   },
 ];
+
+export const sliderFormControls = [
+  {
+    name: "title",
+    label: "BANNER_TITLE",
+    placeholder: "Enter deployment title",
+    componentType: "input",
+    type: "text",
+  },
+  {
+    name: "subtitle",
+    label: "BANNER_SUBTITLE",
+    placeholder: "Enter sub-specification",
+    componentType: "input",
+    type: "text",
+  },
+  {
+    name: "linkUrl",
+    label: "DESTINATION_URL",
+    placeholder: "/shop/example",
+    componentType: "input",
+    type: "text",
+  },
+  {
+    name: "priority",
+    label: "SEQUENCE_PRIORITY",
+    placeholder: "0",
+    componentType: "input",
+    type: "number",
+  },
+];
+
+export const popupFormControls = [
+  {
+    name: "triggerId",
+    label: "TRIGGER_ID",
+    placeholder: "e.g., FLASH_SALE_01",
+    componentType: "input",
+    type: "text",
+  },
+  {
+    name: "headline",
+    label: "ALERT_HEADLINE",
+    placeholder: "System Notification",
+    componentType: "input",
+    type: "text",
+  },
+  {
+    name: "type",
+    label: "MANIFEST_TYPE",
+    componentType: "select",
+    options: [
+      { id: "INFO", label: "GENERAL_INFO" },
+      { id: "DISCOUNT", label: "DISCOUNT_OFFER" },
+      { id: "SYSTEM_ALERT", label: "CRITICAL_ALERT" },
+    ],
+  },
+  {
+    name: "displayDelay",
+    label: "TRIGGER_DELAY (ms)",
+    placeholder: "3000",
+    componentType: "input",
+    type: "number",
+  },
+  {
+    name: "description",
+    label: "ALERT_BODY",
+    placeholder: "Enter details of the transmission...",
+    componentType: "textarea",
+  },
+];

@@ -20,6 +20,7 @@ import { checkAuth } from './store/auth_slice'
 import ShoppingLayout from './components/shopping-view/ShoppingLayout'
 import Contact from './pages/shopping-view/Contact'
 import About from './pages/shopping-view/About'
+import AdminDesignManager from './pages/admin-view/AdminDesignManager'
 
 const App = () => {
   const { isAuthenticated, isLoading, user } = useSelector((state) => state.auth)
@@ -40,6 +41,8 @@ const App = () => {
           <Route path='products' element={<AdminProducts />} />
           <Route path='features' element={<AdminFeatures />} />
           <Route path='orders' element={<AdminOrders />} />
+          <Route path="slider" element={<AdminDesignManager />} />
+          <Route path="popup" element={<AdminDesignManager />} />
         </Route>
         <Route path='/shop' element={<CheckAuth isAuthenticated={isAuthenticated} user={user} isLoading={isLoading} > <ShoppingLayout /> </CheckAuth>}>
           <Route path='home' element={<ShoppingHome />} />
