@@ -3,7 +3,9 @@ import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Button } from "@/components/ui/button";
 import { fetchCartItems } from "@/store/cart-slice"; // Adjusted to match your store keys
-import { Activity, CreditCard, PackageCheck } from "lucide-react";
+import { paymentVerification } from "@/store/stripe-slice/index"
+import { Activity, CreditCard, Import, PackageCheck } from "lucide-react";
+import { loadStripe } from "@stripe/stripe-js";
 
 const getItemUnitPrice = (item) =>
   item?.salePrice > 0 ? item.salePrice : item?.price || 0;
@@ -12,17 +14,31 @@ const ShoppingCheckout = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   
+
+
   // Checking both shopCart and cart based on your previous logs
-  const cartState = useSelector((state) => state.shopCart || state.cart);
+  const cartState = useSelector((state) => state.cart);
+
+
   const { isLoading } = cartState;
 
   const userId = user?.id || user?._id;
-  
-  // Normalizing the array as we did in the Header
-  const items = Array.isArray(cartState?.cartItems) 
-    ? cartState.cartItems 
-    : cartState?.cartItems?.items || [];
 
+  // Normalizing the array as we did in the Header
+  const items = Array.isArray(cartState?.cartItems)
+    ? cartState.cartItems
+    : cartState?.cartItems?.items || [];
+  // payment getaway
+  const makePayment = async () => {
+    const res = await dispatch(
+      paymentVerification(cartState.cartItems.items)
+    );
+    if (res.payload?.success) {
+      window.location.href = res.payload.url; // ✅ NEW METHOD
+    } else {
+      console.log("Payment failed:", res.payload);
+    }
+  };
   const totalItemsCount = items.reduce((sum, item) => sum + (item?.quantity || 0), 0);
   const subtotal = items.reduce(
     (sum, item) => sum + getItemUnitPrice(item) * (item?.quantity || 0),
@@ -164,8 +180,8 @@ const ShoppingCheckout = () => {
                 </div>
 
                 <div className="mt-10 space-y-3">
-                  <Button className="w-full h-14 bg-black text-white hover:bg-zinc-800 rounded-none uppercase font-black tracking-[0.2em] text-xs transition-all active:scale-95" disabled={items.length === 0}>
-                    Execute_Payment_Order
+                  <Button onClick={makePayment} className="w-full h-14 bg-black text-white hover:bg-zinc-800 rounded-none uppercase font-black tracking-[0.2em] text-xs transition-all active:scale-95" disabled={items.length === 0}>
+                    Pay
                   </Button>
 
                   <Button asChild variant="outline" className="w-full h-12 rounded-none border-2 border-black font-black uppercase tracking-widest text-[10px]">

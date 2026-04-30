@@ -11,6 +11,7 @@ import contactRouter from "./routes/contact/contact.routes.js"
 import { connectDB } from "./config/connectdb.js"
 import sliderRoutes from "./routes/sliderandpopup/slide.routes.js"
 import popupRoutes from "./routes/popup/popup.routes.js"
+import stripeRoute from "./routes/stripe/stripe.routes.js"
 dotenv.config()
 const app = express()
 
@@ -45,6 +46,7 @@ app.use("/api/shop/cart", cartRouter)
 app.use("/api/sendmail", contactRouter);
 app.use("/api/slider", sliderRoutes);
 app.use("/api/popup", popupRoutes);
+app.use("/api", stripeRoute);
 
 // Start the server
 app.listen(PORt, () => {

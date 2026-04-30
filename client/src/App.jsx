@@ -21,6 +21,7 @@ import ShoppingLayout from './components/shopping-view/ShoppingLayout'
 import Contact from './pages/shopping-view/Contact'
 import About from './pages/shopping-view/About'
 import AdminDesignManager from './pages/admin-view/AdminDesignManager'
+import Success from './components/shopping-view/Success'
 
 const App = () => {
   const { isAuthenticated, isLoading, user } = useSelector((state) => state.auth)
@@ -48,10 +49,13 @@ const App = () => {
           <Route path='home' element={<ShoppingHome />} />
           <Route path='listing' element={<ShoppingListing />} />
           <Route path='account' element={<ShoppingAccount />} />
-          <Route path='checkout' element={<ShoppingCheckout />} />
           <Route path='about' element={<About />} />
+          <Route path='checkout' element={<ShoppingCheckout />} />
           <Route path='contact' element={<Contact />} />
+          <Route path='success' element={<Success />} />
+          <Route path='cancel' element={<Contact />} />
         </Route>
+
         <Route path='*' element={<Notfound />} />
         <Route path='/unauth-page' element={<Unauth />} />
       </Routes>

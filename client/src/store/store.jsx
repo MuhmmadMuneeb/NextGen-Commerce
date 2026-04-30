@@ -6,6 +6,7 @@ import emailReducer from "./email-slice/email.jsx";
 import shopCartSlice from "./cart-slice";
 import sliderReducer from "./slider-slice/index.jsx";
 import popupSlice from "./popup-slice/index.jsx";
+import stripeSlice from  "./stripe-slice/index"
 
 
 const store = configureStore({
@@ -17,6 +18,7 @@ const store = configureStore({
     email: emailReducer,
     slider:sliderReducer,
     popup:popupSlice,
+    Stripe:stripeSlice,
   },
 });
 
