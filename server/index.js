@@ -12,8 +12,13 @@ import { connectDB } from "./config/connectdb.js"
 import sliderRoutes from "./routes/sliderandpopup/slide.routes.js"
 import popupRoutes from "./routes/popup/popup.routes.js"
 import stripeRoute from "./routes/stripe/stripe.routes.js"
+
 dotenv.config()
 const app = express()
+
+
+
+
 
 //dotenv config
 const PORt = process.env.PORT || 3000
@@ -41,12 +46,14 @@ connectDB()
 // Routes
 app.use("/api/auth", authRouter)
 app.use("/api/admin/products", ProductRouter)
+//user route
 app.use("/api/shop/products", shopProductsRouter)
 app.use("/api/shop/cart", cartRouter)
 app.use("/api/sendmail", contactRouter);
 app.use("/api/slider", sliderRoutes);
 app.use("/api/popup", popupRoutes);
-app.use("/api", stripeRoute);
+//stripe
+app.use("/api/stripe", stripeRoute);
 
 // Start the server
 app.listen(PORt, () => {

@@ -17,7 +17,7 @@ const ShoppingLayout = () => {
             <Header open={isSidebarOpen} setOpen={setIsSidebarOpen} />
             <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
             
-            <main className="flex-1 pt-[72px] lg:pt-[80px]"> 
+            <main className="flex-1 "> 
                 <div className="container mx-auto px-4 md:px-8 py-6">
                     <Outlet />
                 </div>

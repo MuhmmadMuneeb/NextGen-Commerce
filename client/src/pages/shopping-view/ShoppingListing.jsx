@@ -31,29 +31,21 @@ function createSearchParamsHelper(filters) {
 const ShoppingListing = () => {
   const dispatch = useDispatch();
 
-  // Selectors
+
   const { productList, isLoading, productDetails } = useSelector((state) => state.products);
   const { user } = useSelector((state) => state.auth);
-  // Change this line:
-// Replace line 38 with this:
-const { cartItems } = useSelector((state) => state.cart || state.shopCart || { cartItems: { items: [] } });
-
-  // Then, create a helper variable to represent the actual array:
+  const { cartItems } = useSelector((state) => state.cart || state.shopCart || { cartItems: { items: [] } });
   const actualCartItems = cartItems?.items || [];
-  console.log(actualCartItems, "CART_ITEMS_FROM_LISTING");
 
   const [sort, setSort] = useState("price-lowtohigh");
   const [filters, setFilters] = useState({});
   const [open, setOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
-
-  // 1. Initial Load: Sync filters from SessionStorage
   useEffect(() => {
     const savedFilters = JSON.parse(sessionStorage.getItem("filters")) || {};
     setFilters(savedFilters);
   }, []);
 
-  // 2. Logic: Handle Add to Cart with Stock Validation
   const handleAddToCart = (getCurrentProductId, totalStock) => {
     const userId = user?.id || user?._id;
 
@@ -107,13 +99,10 @@ const { cartItems } = useSelector((state) => state.cart || state.shopCart || { c
     sessionStorage.setItem("filters", JSON.stringify(cpyFilters));
   };
 
-  // 3. Sync state to URL search parameters
   useEffect(() => {
     const createQueryString = createSearchParamsHelper(filters);
     setSearchParams(new URLSearchParams(createQueryString));
   }, [filters, setSearchParams]);
-
-  // 4. Fetch products on filter/sort change
   useEffect(() => {
     if (filters !== null && sort !== null) {
       dispatch(
@@ -125,7 +114,6 @@ const { cartItems } = useSelector((state) => state.cart || state.shopCart || { c
     }
   }, [dispatch, filters, sort]);
 
-  // 5. Manage Dialog State
   useEffect(() => {
     if (productDetails) {
       setOpen(true);
@@ -155,7 +143,7 @@ const { cartItems } = useSelector((state) => state.cart || state.shopCart || { c
           </div>
         </aside>
 
-        <main className="flex-1 p-8 md:p-12">
+        <main className="flex-1  md:p-12">
           {/* Header */}
           <div className="flex flex-col sm:flex-row justify-between sm:items-end gap-6 mb-16 border-b border-black/10 pb-10">
             <h1 className="text-7xl sm:text-8xl font-black uppercase tracking-tighter leading-[0.85]">
@@ -185,8 +173,6 @@ const { cartItems } = useSelector((state) => state.cart || state.shopCart || { c
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-
-          {/* TELEMETRY BAR */}
           <div className="flex items-center justify-between mb-12 px-6 py-4 border border-black/10 bg-slate-50/50">
             <div className="flex flex-col">
               <span className="text-[9px] font-black text-black/40 uppercase tracking-[0.3em] flex items-center gap-1">

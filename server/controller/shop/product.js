@@ -2,15 +2,15 @@ import Product from "../../models/Product.model.js";
 
 export const allProducts = async (req, res) => {
   try {
-    // Destructure without forcing arrays yet, as req.query comes in as strings
-    // Look for params directly or inside filterParams/sortParams objects
+
     const categoryQuery = req.query.category || req.query.filterParams?.category;
     const brandQuery = req.query.brand || req.query.filterParams?.brand;
     const sortBy = req.query.sortBy || req.query.sortParams || "price-lowtohigh";
-    
-    let filters = {};
+    const search = req.query.search || "";
 
-    // Helper to safely parse filter values (handles strings, arrays, and undefined)
+    let filters = {};
+    console.log("search", search)
+
     const parseFilter = (val) => {
       if (!val) return null;
       if (Array.isArray(val)) return val;
@@ -27,6 +27,11 @@ export const allProducts = async (req, res) => {
     if (brands) {
       filters.brand = { $in: brands };
     }
+    if (search) {
+      filters.search = { $regex: search, $options: "i" };
+    }
+    console.log("filters", filters)
+
 
     let sort = {};
     switch (sortBy) {
@@ -49,10 +54,10 @@ export const allProducts = async (req, res) => {
 
     const products = await Product.find(filters).sort(sort);
 
-    res.status(200).json({ 
-      success: true, 
-      message: "Products fetched successfully", 
-      data: products 
+    res.status(200).json({
+      success: true,
+      message: "Products fetched successfully",
+      data: products
     });
   } catch (error) {
     console.error("Filter Error:", error);
@@ -60,15 +65,15 @@ export const allProducts = async (req, res) => {
   }
 };
 export const productDetails = async (req, res) => {
-    try {
-        
-        const products = await Product.findById(req.params.id)
-        if (!products) {
-            return res.status(400).json({ success: false, message: "Product not found" })
-        }
-        res.status(200).json({ success: true, message: "all products fetched", data: products })
-    } catch (error) {
-        console.error("Error fetching product details:", error);
-        res.status(500).json({ success: false, message: error.message })
+  try {
+
+    const products = await Product.findById(req.params.id)
+    if (!products) {
+      return res.status(400).json({ success: false, message: "Product not found" })
     }
+    res.status(200).json({ success: true, message: "all products fetched", data: products })
+  } catch (error) {
+    console.error("Error fetching product details:", error);
+    res.status(500).json({ success: false, message: error.message })
+  }
 }

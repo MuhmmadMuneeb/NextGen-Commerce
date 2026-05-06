@@ -16,19 +16,29 @@ export const paymentVerification = createAsyncThunk(
     async (cartProduct) => {
         try {
             const response = await axios.post(
-                `${API_URL}`,
+                `${API_URL}/payment`,
                 { product: cartProduct },
                 {
                     headers: {
                         "Content-Type": "application/json",
                     },
-                }
+                    withCredentials: true
+                },
             );
-            return response.data; // ✅ IMPORTANT
+            return response.data;
         } catch (error) {
             console.log(error)
-
         }
+    }
+);
+export const clearCart = createAsyncThunk(
+    "cart/clear",
+    async () => {
+        const response = await axios.delete(
+            "http://localhost:3000/api/shop/cart/clear",
+            { withCredentials: true }
+        );
+        return response.data;
     }
 );
 
@@ -45,7 +55,7 @@ const stripeSlice = createSlice({
             .addCase(paymentVerification.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.success = action.payload.success;
-                state.sessionId = action.payload.id; 
+                state.sessionId = action.payload.id;
             })
             .addCase(paymentVerification.rejected, (state, action) => {
                 state.isLoading = false;

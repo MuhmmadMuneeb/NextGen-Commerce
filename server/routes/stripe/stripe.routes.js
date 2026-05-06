@@ -1,5 +1,9 @@
+import express from "express";
+import { checkAuthMiddleware } from "../../controller/auth.controller.js";
 import paymentRecived from "../../controller/stripe/stripe.controller.js"
-import express from "express"
- const router = express.Router()
-router.post("/stripe",paymentRecived)
-export default router
+
+
+const router = express.Router();
+router.post("/payment", checkAuthMiddleware, paymentRecived);
+
+export default router;

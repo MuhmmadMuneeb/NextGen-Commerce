@@ -90,6 +90,7 @@ export const Logout = async (req, res) => {
 
 export const checkAuthMiddleware = (req, res, next) => {
     const token = req.cookies.token;
+    
 
     if (!token) {
         return res.status(401).json({
@@ -109,3 +110,6 @@ export const checkAuthMiddleware = (req, res, next) => {
         });
     }
 }
+
+
+

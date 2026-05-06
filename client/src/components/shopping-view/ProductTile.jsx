@@ -8,6 +8,7 @@ function ShoppingProductTile({
   handleGetProductDetails,
   handleAddToCart,
 }) {
+
   return (
     <Card
       onClick={() => handleGetProductDetails(product?._id)}
@@ -19,7 +20,7 @@ function ShoppingProductTile({
           alt={product?.title}
           className="w-full h-[300px] object-cover transition-all duration-500 group-hover:scale-105 grayscale group-hover:grayscale-0"
         />
-        
+
         {/* STOCK & SALE BADGE LOGIC */}
         <div className="absolute top-2 left-2 flex flex-col gap-1">
           {product?.totalStock === 0 ? (
@@ -60,9 +61,8 @@ function ShoppingProductTile({
             <span className="text-[8px] font-black text-black/40 uppercase tracking-tight">Valuation</span>
             <div className="flex items-center gap-2">
               <span
-                className={`${
-                  product?.salePrice > 0 ? "line-through text-black/20 text-sm" : "text-xl"
-                } font-black italic`}
+                className={`${product?.salePrice > 0 ? "line-through text-black/20 text-sm" : "text-xl"
+                  } font-black italic`}
               >
                 ${product?.price}
               </span>
@@ -73,9 +73,9 @@ function ShoppingProductTile({
               ) : null}
             </div>
           </div>
-          
+
           <div className="h-8 w-8 border border-black/5 flex items-center justify-center">
-             <div className="h-1 w-1 bg-black rotate-45" />
+            <div className="h-1 w-1 bg-black rotate-45" />
           </div>
         </div>
       </CardContent>
@@ -95,8 +95,8 @@ function ShoppingProductTile({
 
         {/* ADD TO CART LOGIC - flex-1 prevents overflow */}
         {product?.totalStock === 0 ? (
-          <Button 
-            className="flex-1 rounded-none bg-black/5 text-black/20 cursor-not-allowed font-black uppercase text-[10px] h-12" 
+          <Button
+            className="flex-1 rounded-none bg-black/5 text-black/20 cursor-not-allowed font-black uppercase text-[10px] h-12"
             disabled
           >
             Void

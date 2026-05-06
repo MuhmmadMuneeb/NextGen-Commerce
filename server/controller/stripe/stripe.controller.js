@@ -1,10 +1,25 @@
 import Stripe from "stripe";
+import Order from "../../models/order.js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_ID);
 
 const paymentRecived = async (req, res) => {
   try {
     const { product } = req.body;
+    const userId = req.user.id;
+    
+
+    const totalAmount = product.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+    const order = await Order.create({
+      userId,
+      products: product,
+      totalAmount,
+      paymentStatus: "pending",
+    });
+
 
     const listItems = product.map((item) => ({
       price_data: {
@@ -12,32 +27,35 @@ const paymentRecived = async (req, res) => {
         product_data: {
           name: item.title,
         },
-        unit_amount: item.price * 100, // ✅ convert to cents
+        unit_amount: item.price * 100, 
       },
       quantity: item.quantity,
     }));
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
-      line_items: listItems, // ✅ no extra []
+      line_items: listItems, 
       mode: "payment",
       success_url: "http://localhost:5173/shop/success",
       cancel_url: "http://localhost:5173/shop/cancel",
+      metadata: {
+        orderId: order._id.toString(),
+        userId: userId, // ✅ comes from DB-authenticated user
+      },
+      customer_email: req.user.email,
     });
 
-    console.log(session)
     if (!session) {
       return res.status(400).json({
         success: false,
         message: "Failed to create Stripe session",
-        url:session.url
       });
     }
 
     return res.status(200).json({
       success: true,
-      id: session.id, // ✅ frontend expects this
-      url:session.url
+      id: session.id,
+      url: session.url
     });
 
   } catch (error) {

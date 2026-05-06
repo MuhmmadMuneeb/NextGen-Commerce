@@ -34,7 +34,7 @@ const ShoppingCheckout = () => {
       paymentVerification(cartState.cartItems.items)
     );
     if (res.payload?.success) {
-      window.location.href = res.payload.url; // ✅ NEW METHOD
+      window.location.href = res.payload.url; 
     } else {
       console.log("Payment failed:", res.payload);
     }
